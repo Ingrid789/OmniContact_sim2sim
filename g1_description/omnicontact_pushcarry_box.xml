@@ -67,7 +67,7 @@
         <body name="carry_box" pos="2.2 -0.8 0.15" quat="1 0 0 0">
             <freejoint name="carry_box_joint" />
             <inertial pos="0 0 0" mass="2" diaginertia="0.005 0.005 0.005" />
-            <geom name="carry_box_geom" type="box" size="0.15 0.15 0.15" rgba="0.75 0.5 0.2 1" friction="0.5 0.02 0.001" contype="4" conaffinity="3" />
+            <geom name="carry_box_geom" type="box" size="0.15 0.15 0.15" rgba="0.75 0.5 0.2 1" friction="0.5 0.02 0.001" contype="4" conaffinity="7" />
         </body>
         <body name="plane_1_holder" mocap="true" pos="1 1 0.6">
             <geom name="plane_1" class="table_plane" rgba="0.7 0 0 1" />
