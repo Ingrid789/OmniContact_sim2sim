@@ -722,6 +722,7 @@ class CfGenLoco:
         box_half_dims: np.ndarray | None = None,
     ) -> tuple[dict, float]:
         from policy.omnicontact.CFgen_builder import _TrajBuilder
+        from policy.omnicontact.CFgen_base import CfGenBase
 
         pelvis_start = np.asarray(pelvis_pos, dtype=np.float32).reshape(3).copy()
         pelvis_target = np.asarray(target_obj_pos, dtype=np.float32).reshape(3).copy()
@@ -739,7 +740,19 @@ class CfGenLoco:
         yaw_target_q, target_yaw = self._target_yaw(pelvis_start, pelvis_target, pelvis_quat)
 
         builder = _TrajBuilder()
-        _append_loco_approach(
+        obstacle_half_dims = (
+            np.array([0.15, 0.15, 0.15], dtype=np.float32)
+            if box_half_dims is None
+            else np.asarray(box_half_dims, dtype=np.float32).reshape(3).copy()
+        )
+        waypoint_helper = CfGenBase()
+        waypoint_helper.cfg = {
+            "phase11_waypoint_trigger_margin": 0.05,
+            "phase11_waypoint_trigger_distance": 0.2,
+            "phase11_obstacle_margin": 0.3,
+            "phase11_waypoint_clearance": 0.5,
+        }
+        waypoint_helper._append_loco_approach_with_waypoints(
             builder,
             phase_turn_to_walk=11,
             phase_walk=12,
@@ -752,6 +765,7 @@ class CfGenLoco:
             step_angular=self.step_size_angular,
             object_pos=object_pos,
             object_quat=object_quat,
+            obstacle_half_dims=obstacle_half_dims,
         )
         builder.pad(13, contact=NO_CONTACT, count=self.pad)
         return builder.finalize(), target_yaw

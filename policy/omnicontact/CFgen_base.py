@@ -372,7 +372,7 @@ class CfGenBase:
             residual,
             x_seed.astype(np.float64),
             bounds=(lower.astype(np.float64), upper.astype(np.float64)),
-            max_nfev=100,
+            max_nfev=20,
             diff_step=1e-4,
             xtol=1e-4,
             ftol=1e-4,

@@ -28,7 +28,7 @@ class CfGenCarryBox(CfGenBase):
         self.cfg = {
             "phase11_pregrasp_standoff_dist": 0.4,
             "phase21_carry_object_z": 0.9,
-            "phase22_object_goal_standoff": 0.25,
+            "phase22_object_goal_standoff": 0.4,
             "courch_vel": 150.0,
             "ik_joint_indices": np.array(
                 [
@@ -226,14 +226,17 @@ class CfGenCarryBox(CfGenBase):
             yaw22_1 = b.last("base_q")
         else:
             yaw22_1 = yaw_to_quat(np.arctan2(float(diff[1]), float(diff[0]))).astype(np.float32)
+        forward22 = quat_apply(yaw22_1, np.array([1.0, 0.0, 0.0], dtype=np.float32)).astype(np.float32)
+        object_standoff23 = target_obj_pos.copy()
+        object_standoff23[:2] -= forward22[:2] * float(self.cfg["phase22_object_goal_standoff"])
 
         _append_contactloco_turn_walk_recover(
             b,
             phase_turn=22,
             phase_walk=23,
             yaw_target=yaw22_1,
-            object_goal_pos=target_obj_pos,
-            object_goal_standoff=float(self.cfg["phase22_object_goal_standoff"]),
+            object_target_pos=object_standoff23,
+            object_goal_standoff=0.0,
             step_angular=self.step_angular,
             step_linear=self.step_linear,
             contact=self._contact1_hands,
@@ -241,61 +244,61 @@ class CfGenCarryBox(CfGenBase):
         )
 
         # -------------------------
-        # Phase23: solve the final lowering pose
+        # Phase24: solve the final lowering pose
         # -------------------------
-        pelvis_p23_0 = b.last("base_p")
-        yaw23 = b.last("base_q")
-        o23_0 = b.last("obj_p")
-        oq23 = b.last("obj_q")
-        q23_0 = b.last("dof_pos")
+        pelvis_p24_0 = b.last("base_p")
+        yaw24 = b.last("base_q")
+        o24_0 = b.last("obj_p")
+        oq24 = b.last("obj_q")
+        q24_0 = b.last("dof_pos")
 
-        o23_1 = target_obj_pos.copy()
-        oq23_1 = yaw_quat(oq23)
-        hand_axis23 = (b.last("lw_p") - b.last("rw_p")).astype(np.float32)
-        hand_axis23 /= max(float(np.linalg.norm(hand_axis23)), 1e-6)
-        hand_half_width23 = float(face["w"])
-        lw23_1 = (o23_1 + hand_axis23 * hand_half_width23).astype(np.float32)
-        rw23_1 = (o23_1 - hand_axis23 * hand_half_width23).astype(np.float32)
-        pelvis_p23_1, pelvis_quat_p23_1, q23_1 = self._solve_fixed_feet_hand_ik(
-            pelvis_pos=pelvis_p23_0,
-            pelvis_quat=yaw23,
+        o24_1 = target_obj_pos.copy()
+        oq24_1 = yaw_quat(oq24)
+        hand_axis24 = (b.last("lw_p") - b.last("rw_p")).astype(np.float32)
+        hand_axis24 /= max(float(np.linalg.norm(hand_axis24)), 1e-6)
+        hand_half_width24 = float(face["w"])
+        lw24_1 = (o24_1 + hand_axis24 * hand_half_width24).astype(np.float32)
+        rw24_1 = (o24_1 - hand_axis24 * hand_half_width24).astype(np.float32)
+        pelvis_p24_1, pelvis_quat_p24_1, q24_1 = self._solve_fixed_feet_hand_ik(
+            pelvis_pos=pelvis_p24_0,
+            pelvis_quat=yaw24,
             left_ankle_pos=b.last("la_p"),
             left_ankle_quat=b.last("la_q"),
             right_ankle_pos=b.last("ra_p"),
             right_ankle_quat=b.last("ra_q"),
-            left_palm_pos=lw23_1,
+            left_palm_pos=lw24_1,
             left_palm_quat=None,
-            right_palm_pos=rw23_1,
+            right_palm_pos=rw24_1,
             right_palm_quat=None,
-            seed_joint_pos=q23_0,
-            object_pos=o23_1,
-            object_quat=oq23_1,
+            seed_joint_pos=q24_0,
+            object_pos=o24_1,
+            object_quat=oq24_1,
             **self.ik_params,
         )
 
-        n23 = max(50, int(abs(pelvis_p23_0[2] - pelvis_p23_1[2]) * self.cfg["courch_vel"]))
-        dof_seq23 = self._joint_lerp(q23_0, q23_1, n23)
-        pelvis_seq23 = self._vec_lerp(pelvis_p23_0, pelvis_p23_1, n23)
-        pelvis_quat_seq23 = self._quat_slerp_sequence(yaw23, pelvis_quat_p23_1, n23)
-        o_p23 = self._vec_lerp(o23_0, o23_1, n23)
+        n24 = max(50, int(abs(pelvis_p24_0[2] - pelvis_p24_1[2]) * self.cfg["courch_vel"]))
+        dof_seq24 = self._joint_lerp(q24_0, q24_1, n24)
+        pelvis_seq24 = self._vec_lerp(pelvis_p24_0, pelvis_p24_1, n24)
+        pelvis_quat_seq24 = self._quat_slerp_sequence(yaw24, pelvis_quat_p24_1, n24)
+        o_p24 = self._vec_lerp(o24_0, o24_1, n24)
 
         self._append_joint_fk_phase(
             b,
-            23,
-            obj_pos=o_p23,
+            24,
+            obj_pos=o_p24,
             obj_quat=b.last("obj_q"),
-            qseq=dof_seq23,
-            pelvis_seq=pelvis_seq23,
-            pelvis_quat_seq=pelvis_quat_seq23,
+            qseq=dof_seq24,
+            pelvis_seq=pelvis_seq24,
+            pelvis_quat_seq=pelvis_quat_seq24,
             contact=self._contact1_hands,
         )
 
         # -------------------------
-        # Phase24: return to default dof while preserving the current ankle positions.
+        # Phase25: return to default dof while preserving the current ankle positions.
         # -------------------------
         _append_contactloco_recover(
             b,
-            24,
+            25,
             recover_frames=60,
             recover_contact=self._contact0,
             recover_pad=self.pad,

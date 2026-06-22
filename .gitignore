@@ -28,16 +28,7 @@ outputs/
 results/
 checkpoints/
 
-# Large local assets
-*.onnx
-*.pt
-*.pth
-*.ckpt
-*.npz
-*.npy
-
 # Local datasets and generated media
-data/
 videos/
 recordings/
 screenshots/

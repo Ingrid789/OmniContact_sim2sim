@@ -14,7 +14,7 @@
     </asset>
     <default>
         <default class="table_plane">
-            <geom type="box" size="0.2 0.2 0.01" friction="1.0 0.02 0.001" contype="2" conaffinity="4" />
+            <geom type="box" size="0.2 0.2 0.001" friction="1.0 0.02 0.001" contype="2" conaffinity="4" />
         </default>
         <default class="reference_visual">
             <geom rgba="1 1 0 0.7" contype="0" conaffinity="0" group="1" density="0" />

@@ -11,5 +11,5 @@ class CfGenRelocateBall(CfGenCarryBox):
         
         self.cfg.update(
             phase11_pregrasp_standoff_dist=0.3,
-            phase22_object_goal_standoff=0.05
+            phase22_object_goal_standoff=0.3
         )

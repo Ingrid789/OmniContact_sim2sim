@@ -1,0 +1,39 @@
+xml_path: "g1_description/omnicontact_carry_box.xml"
+simulation_dt: 0.005
+control_decimation: 4
+
+task: "carrybox"
+task_choices: ["carrybox", "pushbox-two", "pushbox-in", "pushbox-up", "slidebox", "slidebox-left", "slidebox-right", "push-carry", "carry-push", "carry-carry", "carry-carry-carry", "stackbox", "relocateball", "kickball", "kickbox"]
+init_pos: [1.0, 0.0, 0.55]
+box_half_dims: [0.15, 0.15, 0.15]
+goal_pos: [3.0, 0.0, 0.26]
+disable_replan: false
+
+lab2mj: [0, 3, 6, 9, 13, 17, 1, 4, 7, 10, 14, 18, 2, 5, 8, 11, 15, 19, 21, 23, 25, 27, 12, 16, 20, 22, 24, 26, 28]
+torque_limit_lab: [
+  88.0, 88.0, 88.0, 139.0, 139.0, 50.0,
+  88.0, 88.0, 50.0, 139.0, 139.0, 25.0,
+  25.0, 50.0, 50.0, 25.0, 25.0, 50.0,
+  50.0, 25.0, 25.0, 25.0, 25.0, 25.0,
+  25.0, 5.0, 5.0, 5.0, 5.0
+]
+default_joint_pos_mj: [
+  -0.2, 0.0, 0.0, 0.42, -0.23, 0.0,
+  -0.2, 0.0, 0.0, 0.42, -0.23, 0.0,
+  0.0, 0.0, 0.0,
+  0.35, 0.18, 0.0, 0.87, 0.0, 0.0, 0.0,
+  0.35, -0.18, 0.0, 0.87, 0.0, 0.0, 0.0
+]
+
+identity_quat: [1.0, 0.0, 0.0, 0.0]
+reference_no_contact_rgba: [1.0, 1.0, 0.0, 0.7]
+reference_contact_rgba: [1.0, 0.0, 0.0, 0.7]
+
+closed_loop_replan:
+  detach_dist_threshold: 0.3
+  detach_trigger_ticks: 8
+  cooldown_ticks: 80
+  goal_tolerance: 0.2
+  obj_speed_threshold: 0.05
+  obj_ang_speed_threshold: 0.15
+  static_ticks: 5

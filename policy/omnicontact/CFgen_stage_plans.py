@@ -3,6 +3,17 @@ from typing import Any
 import numpy as np
 
 
+def _set_active_object_profile(policy: Any, object_name: str, dims: np.ndarray) -> None:
+    if hasattr(policy, "_set_active_object_profile"):
+        policy._set_active_object_profile(object_name, dims)
+        return
+
+    policy.active_object_name = str(object_name)
+    policy.box_dims = np.asarray(dims, dtype=np.float32).reshape(3).copy()
+    policy.bbox_scale = policy.box_dims * 2.0
+    policy.bbox_offsets_scaled = policy.bbox_offsets * policy.bbox_scale.reshape(1, 3)
+
+
 def carrybox_pushbox_plan(policy: Any, fk_info: dict):
     cfgen = policy.carry_push_cfgen if policy.task == "carry-push" else policy.push_carry_cfgen
     plan, traj_data, target_yaw = cfgen.generate_stage(
@@ -19,7 +30,7 @@ def carrybox_pushbox_plan(policy: Any, fk_info: dict):
     )
     policy.push_carry_stage = plan["stage"]
     policy.traj_generator = cfgen
-    policy._set_active_object_profile(plan["object_name"], plan["box_dims"])
+    _set_active_object_profile(policy, plan["object_name"], plan["box_dims"])
     return plan, traj_data, target_yaw
 
 
@@ -37,7 +48,7 @@ def carry_carry_carry_plan(policy: Any, fk_info: dict):
         box_names=policy.stack_box_names[:stage_count],
     )
     policy.stackbox_stage_idx = plan["stage_idx"]
-    policy._set_active_object_profile(plan["object_name"], plan["box_dims"])
+    _set_active_object_profile(policy, plan["object_name"], plan["box_dims"])
     return plan, traj_data, target_yaw
 
 
@@ -56,5 +67,5 @@ def push_relocate_plan(policy: Any, fk_info: dict):
     )
     policy.push_relocate_stage = plan["stage"]
     policy.traj_generator = policy.push_relocate_cfgen
-    policy._set_active_object_profile(plan["object_name"], plan["box_dims"])
+    _set_active_object_profile(policy, plan["object_name"], plan["box_dims"])
     return plan, traj_data, target_yaw

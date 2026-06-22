@@ -1,5 +1,5 @@
 <mujoco model="carrybox scene">
-    <include file="g1_29dof.xml" />
+    <include file="g1_29dof_hand.xml" />
     <include file="g1_ghost.xml" />
     <statistic center="1.0 0.7 1.0" extent="0.8" />
     <visual>

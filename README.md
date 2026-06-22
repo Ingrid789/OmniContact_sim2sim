@@ -31,164 +31,229 @@
   <sup>✉</sup>Corresponding authors
 </p>
 
-
 <p align="center">
   <a href="https://omnicontact.github.io/"><img src="https://img.shields.io/badge/Project-Page-2ea44f" alt="Project Page"></a>
-  <a href="https://arxiv.org/abs/2510.11072"><img src="https://img.shields.io/badge/arXiv-2510.11072-b31b1b" alt="arXiv"></a>
+  <a href="https://arxiv.org/abs/2510.xxxxx"><img src="https://img.shields.io/badge/arXiv-2510.xxxxx-b31b1b" alt="arXiv"></a>
   <a href="https://omnicontact.github.io/policy-viewer.html?v=policy-hide-push-ghostbox-20260604a"><img src="https://img.shields.io/badge/Live%20Demo-MuJoCo%20Policy%20Viewer-orange" alt="Live Demo"></a>
   <img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey" alt="License: CC BY-NC-SA 4.0">
 </p>
 
 ---
 
-OmniContact is a long-horizon human-object interaction system built from two parts:
+<p align="center">
+  <img src="docs/teaser.gif" alt="OmniContact teaser" width="90%">
+</p>
 
-- **CFgen**: a rule-based contact-flow trajectory synthesis method. It generates reference trajectories for meta-skills such as carry, push, slide, relocate, and kick.
-- **CFtrack**: the low-level tracking policy. It tracks either CFgen-generated references or a complete HOI `.npz` motion.
+OmniContact is a contact-flow framework for long-horizon humanoid loco-manipulation. The system has two main pieces:
 
-In this repository, **CFgen + CFtrack** is the full OmniContact pipeline, while **CFtrack** alone can replay a precomputed HOI `.npz` trajectory from `data/`.
+- **CFgen** generates task-space contact-flow references for skills such as carry, push, slide, relocate, kick, and chained meta-skills.
+- **CFtrack** is the low-level policy that tracks either CFgen references or full `.npz` human-object interaction motions.
 
-## 1. Install Environment
+This repository provides two MuJoCo execution paths:
 
-Create and activate the conda environment:
+- `deploy_omnicontact/run_skill_omnicontact.py`: direct scripted execution for CFgen or NPZmotion tracking.
+- `deploy_omnicontact/deploy_omnicontact.py`: interactive hot-switch execution with an Xbox joystick, designed to mirror the state switching pattern used by sim2real deployment.
+
+## 🛠️ Installation
+
+Create the Python environment:
 
 ```bash
-conda create -n nair_sim python=3.11 -y
-conda activate nair_sim
+conda create -n omnicontact python=3.11 -y
+conda activate omnicontact
 conda install pytorch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 pytorch-cuda=12.1 -c pytorch -c nvidia -y
-pip install numpy onnx onnxruntime mujoco pyyaml scipy
+pip install numpy onnx onnxruntime mujoco pyyaml scipy pygame
 ```
 
-Install this repository:
+Install the repository:
 
 ```bash
 cd /home/lenovo/NR/omnicontact_sim2sim-real
 pip install -e .
 ```
 
-Optional, for real-robot deployment:
+The local development environment used by this repo often points VSCode launch configs to:
 
 ```bash
-git clone https://github.com/unitreerobotics/unitree_sdk2_python.git
-cd unitree_sdk2_python
-pip install -e .
+/home/lenovo/miniconda3/envs/nair_sim/bin/python
 ```
 
-## 2. Inference Meta-Skill With CFgen
+## 🚀 Direct Runner
 
-Use `reference-source=CFgen` to synthesize a single meta-skill reference with CFgen and track it with CFtrack.
+Use `run_skill_omnicontact.py` when you want a scripted run that immediately starts OmniContact.
 
-Example: carry a box from `(2, 0)` to `(5, 1)`:
+### 🧪 CFgen Reference
 
 ```bash
-python deploy_carrybox_manager/run_skill_omnicontact.py \
+python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
+  --policy policy.onnx \
   --task carrybox \
-  --init-pos 2 0 \
-  --goal-pos 5 1
+  --init-pos 1.0 0.0 \
+  --goal-pos 2.5 0.5
 ```
 
-Other CFgen meta-skills:
+Supported single-skill tasks include:
 
-```bash
-# Push box
-python deploy_carrybox_manager/run_skill_omnicontact.py \
-  --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
-  --task pushbox-two \
-  --init-pos 2 0 \
-  --goal-pos 5 1
-
-# Slide box left
-python deploy_carrybox_manager/run_skill_omnicontact.py \
-  --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
-  --task slidebox-left \
-  --init-pos 2 0 \
-  --goal-pos 5 1
-
-# Kick ball
-python deploy_carrybox_manager/run_skill_omnicontact.py \
-  --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
-  --task kickball \
-  --init-pos 2 0 \
-  --goal-pos 5 1
+```text
+loco
+carrybox
+pushbox
+pushbox-in
+pushbox-two
+pushbox-up
+slidebox
+slidebox-left
+slidebox-right
+relocateball
+kickball
+kickbox
 ```
 
-The object half dimensions are loaded from the selected MuJoCo XML automatically. Use `--box-half-dims HX HY HZ` only when you want to override the XML dimensions.
+`--task pushbox` is treated as an alias for `pushbox-in`.
 
-## 3. Inference Skill Chaining With CFgen
-
-Skill chaining uses CFgen to plan a sequence of meta-skills and CFtrack to execute each stage.
-
-Example: carry first, then push:
+### 🔗 Skill Chaining
 
 ```bash
-python deploy_carrybox_manager/run_skill_omnicontact.py \
+python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
+  --policy policy.onnx \
   --task-chaining carry-push \
-  --init-pos 2 0 \
-  --goal-pos 5 1
+  --init-pos 1.0 0.0 \
+  --goal-pos 2.5 0.5
 ```
 
-Supported chains:
+Common chains:
 
-```bash
---task-chaining push-carry
---task-chaining carry-push
---task-chaining carry-carry
---task-chaining carry-carry-carry
+```text
+push-carry
+carry-push
+push-relocate
+carry-carry
+carry-carry-carry
+carryheart
 ```
 
-For chained tasks, the push-box and carry-box half dimensions are loaded separately from the task XML. For example, `push-carry` and `carry-push` use `g1_description/omnicontact_pushcarry_box.xml`, where `push_box` and `carry_box` have distinct sizes.
-
-Optional extra-object initialization:
+Extra object initialization can be provided for chained tasks:
 
 ```bash
-python deploy_carrybox_manager/run_skill_omnicontact.py \
+python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy actorcritic_transformer_45k.onnx \
+  --policy policy.onnx \
   --task-chaining push-carry \
-  --init-pos 2 0 \
-  --init-pos-extra 3 -1 \
-  --goal-pos 5 1
+  --init-pos 1.0 0.0 \
+  --init-pos-extra 2.2 -0.8 \
+  --goal-pos 2.5 0.5
 ```
 
-## 4. Inference With CFtrack
+### 🗂️ NPZ Motion Tracking
 
-Use `reference-source=NPZmotion` to run CFtrack directly on a complete HOI `.npz` trajectory. This bypasses CFgen and tracks the provided motion.
-
-Example using a motion under `data/`:
+Use `reference-source=NPZmotion` to track a full `.npz` motion from `data/`.
 
 ```bash
-python deploy_carrybox_manager/run_skill_omnicontact.py \
+python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source NPZmotion \
-  --xml-path g1_description/omnicontact_kick_ball.xml \
-  --policy actorcritic_transformer_18k.onnx \
-  --npz-dir data/punt_data_slow2/ball10_092_with_contact_auto_seg01.npz \
+  --policy policy.onnx \
+  --npz-dir data/relocateball/relocateball_motion_3_with_contact.npz \
   --start-frame 0
 ```
 
-You can also pass a directory; the runner will use the first `.npz` file in that directory:
+The runner can infer XML assets from common data folders:
 
-```bash
-python deploy_carrybox_manager/run_skill_omnicontact.py \
-  --reference-source NPZmotion \
-  --xml-path g1_description/omnicontact_kick_ball.xml \
-  --policy actorcritic_transformer_18k.onnx \
-  --npz-dir data/punt_data_slow2 \
-  --start-frame 0 \
-  --end-frame 1000
+```text
+data/carrybox     -> g1_description/omnicontact_carry_box.xml
+data/loco         -> g1_description/omnicontact_carry_box.xml
+data/pushbox      -> g1_description/omnicontact_push_box.xml
+data/slidebox     -> g1_description/omnicontact_slide_box_npz.xml
+data/relocateball -> g1_description/omnicontact_relocate_ball.xml
 ```
 
-Common options:
+You can still override the XML manually:
 
 ```bash
---headless          # run without the MuJoCo viewer
---max-steps N       # stop after N simulation steps
---stop-when-done    # exit when the policy reports task completion
---randomize         # apply random horizontal disturbance to the active object
+python deploy_omnicontact/run_skill_omnicontact.py \
+  --reference-source NPZmotion \
+  --xml-path g1_description/omnicontact_relocate_ball.xml \
+  --policy policy.onnx \
+  --npz-dir data/relocateball/relocateball_motion_3_with_contact.npz
+```
+
+Useful runner options:
+
+```text
+--headless
+--max-steps N
+--stop-when-done
+--start-frame N
+--end-frame N
+--no-reset-env
+--disable-replan
+```
+
+## 🎮 Interactive Hot-Switch Deploy
+
+`deploy_omnicontact/deploy_omnicontact.py` is different from the direct runner. It is an interactive MuJoCo deployment harness that keeps the whole FSM alive and allows hot-switching between policies with an Xbox joystick:
+
+```text
+Passive / default state -> DefaultPose -> LocoMode -> OmniContact
+```
+
+This is useful because the same hot-switch idea can be applied to sim2real deployment: bring the robot to a stable default pose, switch into locomotion, then switch into the OmniContact policy at the desired moment without restarting the controller.
+
+### ▶️ Example
+
+```bash
+python deploy_omnicontact/deploy_omnicontact.py \
+  --task pushbox \
+  --init-pos 3.0 0.0 0.55 \
+  --goal-pos 3.0 0.0 0.15 \
+  --box-half-dims 0.15 0.15 0.15
+```
+
+`deploy_omnicontact.py` automatically selects the MuJoCo XML from `--task`:
+
+```text
+carrybox              -> g1_description/omnicontact_carry_box.xml
+pushbox / pushbox-*   -> g1_description/omnicontact_push_box.xml
+slidebox / slidebox-* -> g1_description/omnicontact_slide_box.xml
+relocateball          -> g1_description/omnicontact_relocate_ball.xml
+kickball / kickbox    -> g1_description/omnicontact_kick_ball.xml
+```
+
+Pass `--xml-path` only when you want to override this automatic mapping.
+
+### 🕹️ Xbox Joystick Controls
+
+The joystick mapping is defined in `common/joystick.py`. The important runtime switches are:
+
+```text
+START        -> POS_RESET / DefaultPose
+R1 + A       -> LocoMode
+L1 + A       -> OmniContact policy
+R1 + B       -> Skill cooldown / auxiliary skill mode
+L3           -> Passive
+SELECT       -> Stop the deploy loop
+```
+
+When switching to OmniContact with `L1 + A`, the script resets the active object and table references from `--init-pos`, `--goal-pos`, and `--box-half-dims`, then enters the OmniContact FSM state.
+
+The interactive deploy also visualizes:
+
+- wrist, torso, and ankle reference mocaps;
+- contact-state color changes;
+- table/object references;
+- ghost robot visualization when the loaded XML contains `g1_ghost.xml`.
+
+If the ghost robot is not visible in the MuJoCo viewer, enable `group 1` rendering, since the ghost geoms are assigned to visual group 1.
+
+## 📚 Citation
+
+```bibtex
+@article{yu2026omnicontact,
+  title={OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation},
+  author={Yu, Runyi and Lin, Xiaoyi and Ma, Ji and Wang, Yinhuai and Luo, Koukou and Ji, Jiahao and Wang, Huayi and Wang, Wenjia and Zhang, Runhan and Tan, Ping and Wu, Ting and Dai, Ruoli and Chen, Qifeng and Han, Lei},
+  journal={arXiv preprint arXiv:2606.xxxxx},
+  year={2026},
+  url={https://arxiv.org/abs/2606.xxxxx}
+}
 ```
