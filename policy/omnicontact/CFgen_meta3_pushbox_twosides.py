@@ -94,6 +94,7 @@ class CfGenPushBoxTwoSides(CfGenPushBoxInnerSide):
             object_pos=obj_pos0,
             object_quat=obj_quat0,
             obstacle_half_dims=box_half_dims,
+            use_waypoints=False,
         )
         phase11_pelvis_pos = b.last("base_p").copy()
         phase11_pelvis_quat = b.last("base_q").copy()

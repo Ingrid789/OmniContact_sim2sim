@@ -86,6 +86,7 @@ class CfGenBase:
         waypoint_trigger_distance: float | None = None,
         obstacle_margin: float | None = None,
         waypoint_clearance: float | None = None,
+        use_waypoints: bool = True,
     ) -> None:
         cfg = getattr(self, "cfg", {})
         start = np.asarray(pelvis_start, dtype=np.float32).reshape(3)
@@ -147,7 +148,7 @@ class CfGenBase:
 
         waypoints = [target.copy()]
         corridor_radius = float(np.max(dims[:2]) + trigger_distance)
-        if intersects_trigger_box or center_path_dist <= corridor_radius:
+        if use_waypoints and (intersects_trigger_box or center_path_dist <= corridor_radius):
             path_dir = target[:2] - start[:2]
             norm = float(np.linalg.norm(path_dir))
             if norm >= 1e-6:
