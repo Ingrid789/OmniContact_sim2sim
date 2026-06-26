@@ -33,7 +33,7 @@
 
 <p align="center">
   <a href="https://omnicontact.github.io/"><img src="https://img.shields.io/badge/Project-Page-2ea44f" alt="Project Page"></a>
-  <a href="https://arxiv.org/abs/2510.xxxxx"><img src="https://img.shields.io/badge/arXiv-2510.xxxxx-b31b1b" alt="arXiv"></a>
+  <a href="https://arxiv.org/abs/2606.26201"><img src="https://img.shields.io/badge/arXiv-2606.26201-b31b1b" alt="arXiv"></a>
   <a href="https://omnicontact.github.io/policy-viewer.html?v=policy-hide-push-ghostbox-20260604a"><img src="https://img.shields.io/badge/Live%20Demo-MuJoCo%20Policy%20Viewer-orange" alt="Live Demo"></a>
   <a href="https://huggingface.co/datasets/lightcone02/OmniContact-Dataset"><img src="https://img.shields.io/badge/Dataset-Hugging%20Face-yellow" alt="Dataset"></a>
   <img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey" alt="License: CC BY-NC-SA 4.0">
@@ -265,10 +265,13 @@ If the ghost robot is not visible in the MuJoCo viewer, enable `group 1` renderi
 ## 📚 Citation
 
 ```bibtex
-@article{yu2026omnicontact,
-  title={OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation},
-  author={Yu, Runyi and Lin, Xiaoyi and Ma, Ji and Wang, Yinhuai and Luo, Koukou and Ji, Jiahao and Wang, Huayi and Wang, Wenjia and Zhang, Runhan and Tan, Ping and Wu, Ting and Dai, Ruoli and Chen, Qifeng and Han, Lei},
-  journal={arXiv preprint arXiv:coming soon},
-  year={2026}
+@misc{yu2026omnicontactchainingmetaskillscontact,
+      title={OmniContact: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation}, 
+      author={Runyi Yu and Xiaoyi Lin and Ji Ma and Yinhuai Wang and Koukou Luo and Jiahao Ji and Huayi Wang and Wenjia Wang and Runhan Zhang and Ping Tan and Ting Wu and Ruoli Dai and Qifeng Chen and Lei Han},
+      year={2026},
+      eprint={2606.26201},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2606.26201}, 
 }
 ```
