@@ -21,6 +21,7 @@ TASK_XML_PATHS = {
     "push-carry": "g1_description/omnicontact_pushcarry_box.xml",
     "carry-push": "g1_description/omnicontact_pushcarry_box.xml",
     "push-relocate": "g1_description/omnicontact_pushrelocate_ball.xml",
+    "relocate-kick": "g1_description/omnicontact_relocate_kick_ball.xml",
     "carry-carry": "g1_description/omnicontact_stack_2box.xml",
     "carry-carry-carry": "g1_description/omnicontact_stack_3box.xml",
     "carryheart": "g1_description/omnicontact_heart_10box.xml",
@@ -88,7 +89,7 @@ class OmniContactConfigMixin:
         return ""
 
     def _resolve_task_chaining(self) -> None:
-        direct_tasks = {"push-carry", "carry-push", "carryheart", "push-relocate", "carry-carry", "carry-carry-carry"}
+        direct_tasks = {"push-carry", "carry-push", "carryheart", "push-relocate", "relocate-kick", "carry-carry", "carry-carry-carry"}
         chain = self.args.task_chaining
         if not chain:
             return

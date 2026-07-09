@@ -169,8 +169,14 @@ class OmniContact(FSMState):
             stack_box_dims=np.asarray(self.stack_box_dims, dtype=np.float32).copy(),
             stack_box_goal_pos=np.asarray(self.stack_box_goal_pos, dtype=np.float32).copy(),
             goal_pos=np.asarray(self.goal_pos, dtype=np.float32).copy(),
+            relocate_kick_goal_pos=np.asarray(getattr(self, "relocate_kick_goal_pos", np.zeros(3)), dtype=np.float32).copy(),
+            relocate_kick_final_goal_pos=np.asarray(
+                getattr(self, "relocate_kick_final_goal_pos", getattr(self, "goal_pos", np.zeros(3))),
+                dtype=np.float32,
+            ).copy(),
             push_carry_stage=copy.deepcopy(getattr(self, "push_carry_stage", "idle")),
             push_relocate_stage=copy.deepcopy(getattr(self, "push_relocate_stage", "idle")),
+            relocate_kick_stage=copy.deepcopy(getattr(self, "relocate_kick_stage", "idle")),
             stackbox_stage_idx=int(getattr(self, "stackbox_stage_idx", 0)),
             stackbox_stage_count=int(getattr(self, "stackbox_stage_count", 3)),
         )
@@ -179,6 +185,15 @@ class OmniContact(FSMState):
         init_cfgen_state(snapshot, pad=30)
         snapshot.push_carry_stage = copy.deepcopy(getattr(self, "push_carry_stage", "idle"))
         snapshot.push_relocate_stage = copy.deepcopy(getattr(self, "push_relocate_stage", "idle"))
+        snapshot.relocate_kick_stage = copy.deepcopy(getattr(self, "relocate_kick_stage", "idle"))
+        snapshot.relocate_kick_goal_pos = np.asarray(
+            getattr(self, "relocate_kick_goal_pos", np.zeros(3)),
+            dtype=np.float32,
+        ).copy()
+        snapshot.relocate_kick_final_goal_pos = np.asarray(
+            getattr(self, "relocate_kick_final_goal_pos", getattr(self, "goal_pos", np.zeros(3))),
+            dtype=np.float32,
+        ).copy()
         snapshot.stackbox_stage_idx = int(getattr(self, "stackbox_stage_idx", 0))
         snapshot.stackbox_stage_count = int(getattr(self, "stackbox_stage_count", 3))
         return snapshot
@@ -194,6 +209,8 @@ class OmniContact(FSMState):
             "bbox_offsets_scaled",
             "push_carry_stage",
             "push_relocate_stage",
+            "relocate_kick_stage",
+            "relocate_kick_final_goal_pos",
             "stackbox_stage_idx",
             "stackbox_stage_count",
             "traj_generator",
@@ -298,7 +315,7 @@ class OmniContact(FSMState):
             self.goal_pos = np.array([5.0, 0.0, 0.55], dtype=np.float32)
         else:
             self.goal_pos = np.asarray(goal_override, dtype=np.float32).reshape(3).copy()
-        if self.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "kickball", "push-carry", "carry-push", "push-relocate"}:
+        if self.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "kickball", "push-carry", "carry-push", "push-relocate", "relocate-kick"}:
             self.goal_pos[2] = float(self.box_dims[2])
         elif self.task == "loco":
             self.goal_pos[2] = float(DEFAULT_PELVIS_Z)
@@ -480,6 +497,11 @@ class OmniContact(FSMState):
             if self.task == "push-relocate" and self.push_relocate_stage == self.push_relocate_cfgen.PUSH_STAGE:
                 self._start_async_stage_plan(
                     lambda policy: setattr(policy, "push_relocate_stage", policy.push_relocate_cfgen.RELOCATE_STAGE)
+                )
+                return
+            if self.task == "relocate-kick" and self.relocate_kick_stage == self.relocate_kick_cfgen.RELOCATE_STAGE:
+                self._start_async_stage_plan(
+                    lambda policy: setattr(policy, "relocate_kick_stage", policy.relocate_kick_cfgen.KICK_STAGE)
                 )
                 return
             if self.task in {"stackbox", "carry-carry", "carry-carry-carry"} and self.stackbox_stage_idx < self.stackbox_stage_count - 1:

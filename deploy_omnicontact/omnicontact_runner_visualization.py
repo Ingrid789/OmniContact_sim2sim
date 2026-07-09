@@ -156,6 +156,7 @@ class OmniContactVisualizationMixin:
         self.r_ankle_mocap_id = self._safe_body_mocap_id("ref_r_ankle_frame")
         self.plane1_mocap_id = self._safe_body_mocap_id("plane_1_holder")
         self.plane2_mocap_id = self._safe_body_mocap_id("plane_2_holder")
+        self.relocate_goal_mocap_id = self._safe_body_mocap_id("relocate_goal_holder")
 
         self.ref_l_hand_geom_id = self._name2id(mujoco.mjtObj.mjOBJ_GEOM, "ref_l_rubber_hand")
         self.ref_r_hand_geom_id = self._name2id(mujoco.mjtObj.mjOBJ_GEOM, "ref_r_rubber_hand")

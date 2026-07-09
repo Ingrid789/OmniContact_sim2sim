@@ -207,20 +207,33 @@ class OmniContactResetMixin:
 
         if self.plane1_mocap_id >= 0:
             self.d.mocap_pos[self.plane1_mocap_id] = init_pos - np.array([0.0, 0.0, self._table_height_offset() + 0.01], dtype=np.float32)
+        if self.policy.task == "relocate-kick" and self.relocate_goal_mocap_id >= 0:
+            relocate_goal_pos = np.asarray(
+                getattr(self.policy, "relocate_kick_goal_pos", self._goal_pos()),
+                dtype=np.float32,
+            ).reshape(3)
+            self.d.mocap_pos[self.relocate_goal_mocap_id] = np.array(
+                [relocate_goal_pos[0], relocate_goal_pos[1], -0.01],
+                dtype=np.float32,
+            )
         if self.plane2_mocap_id >= 0:
             if self.policy.task in {"stackbox", "carry-carry", "carry-carry-carry"}:
                 self.d.mocap_pos[self.plane2_mocap_id] = np.array([1.0, 0.0, 0.0], dtype=np.float32)
-            elif self.policy.task == "kickball":
+            elif self.policy.task in {"kickball", "relocate-kick"}:
                 goal_pos = self._goal_pos()
-                self.d.mocap_pos[self.plane2_mocap_id] = np.array(
-                    [goal_pos[0], goal_pos[1], 0.0],
-                    dtype=np.float32,
-                )
-                goal_dir = (goal_pos[:2] - init_pos[:2]).astype(np.float32)
-                goal_dir_norm = float(np.linalg.norm(goal_dir))
-                if goal_dir_norm > 1e-6:
-                    goal_yaw = float(np.arctan2(float(goal_dir[1]), float(goal_dir[0])))
-                    self.d.mocap_quat[self.plane2_mocap_id] = yaw_to_quat(goal_yaw).astype(np.float32)
+                if self.policy.task == "relocate-kick":
+                    self.d.mocap_pos[self.plane2_mocap_id] = goal_pos.astype(np.float32).copy()
+                    self.d.mocap_quat[self.plane2_mocap_id] = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
+                else:
+                    self.d.mocap_pos[self.plane2_mocap_id] = np.array(
+                        [goal_pos[0], goal_pos[1], 0.0],
+                        dtype=np.float32,
+                    )
+                    goal_dir = (goal_pos[:2] - init_pos[:2]).astype(np.float32)
+                    goal_dir_norm = float(np.linalg.norm(goal_dir))
+                    if goal_dir_norm > 1e-6:
+                        goal_yaw = float(np.arctan2(float(goal_dir[1]), float(goal_dir[0])))
+                        self.d.mocap_quat[self.plane2_mocap_id] = yaw_to_quat(goal_yaw).astype(np.float32)
             elif self.policy.task == "push-relocate":
                 goal_pos = self._goal_pos()
                 self.d.mocap_pos[self.plane2_mocap_id] = np.array(

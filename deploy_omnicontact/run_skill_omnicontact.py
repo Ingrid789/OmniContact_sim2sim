@@ -169,6 +169,12 @@ class OmniContactRunner(
                 return np.array([pos[0], pos[1], DEFAULT_PELVIS_Z], dtype=np.float32)
             raise ValueError("--init-pos/--goal-pos must provide either X Y or X Y Z.")
 
+        def relocate_kick_staging_pos(goal: np.ndarray) -> np.ndarray:
+            goal = np.asarray(goal, dtype=np.float32).reshape(3)
+            out = goal.copy()
+            out[0] -= 1.0
+            return out
+
         self.state_cmd = StateAndCmd(self.num_joints)
         self.policy_output = PolicyOutput(self.num_joints)
         task = "carrybox" if self.is_carryheart else self.args.task
@@ -176,6 +182,7 @@ class OmniContactRunner(
         policy_label = "override policy onnx"
         task_policy_overrides = {
             "kickball": "kick_50k.onnx",
+            "relocate-kick": "kick_50k.onnx",
             "pushbox-two": "combine_50k.onnx",
         }
         if task in task_policy_overrides:
@@ -207,6 +214,9 @@ class OmniContactRunner(
         elif self.policy.task == "relocateball":
             self.policy.active_object_name = "ball"
             self.policy.box_dims = self.policy.ball_dims.copy()
+        elif self.policy.task == "relocate-kick":
+            self.policy.active_object_name = "ball"
+            self.policy.box_dims = self.policy.ball_dims.copy()
         elif self.policy.task == "carry-push":
             self.policy.active_object_name = "carry_box"
             self.policy.box_dims = self.policy.carry_box_dims.copy()
@@ -230,6 +240,9 @@ class OmniContactRunner(
                 )
             else:
                 self.policy.carry_box_init_pos_override = ground_pos(init_pos_extra, (2.2, -0.8, 0.15))
+        if self.policy.task == "relocate-kick":
+            self.policy.relocate_kick_final_goal_pos = self.policy.goal_pos_override.copy()
+            self.policy.relocate_kick_goal_pos = relocate_kick_staging_pos(self.policy.goal_pos_override)
         if self.policy.reference_source not in {"CFgen", "NPZmotion"}:
             raise ValueError(f"Unsupported reference_source: {self.policy.reference_source}")
         

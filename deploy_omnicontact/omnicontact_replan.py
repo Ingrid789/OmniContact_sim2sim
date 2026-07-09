@@ -45,7 +45,7 @@ class OmniContactCarryboxReplan:
         return (
             self.enabled
             and self.runner.policy.reference_source == "CFgen"
-            and self.runner.policy.task not in {"kickball", "loco"}
+            and self.runner.policy.task not in {"kickball", "relocate-kick", "loco"}
         )
 
     def _worker_running(self) -> bool:
