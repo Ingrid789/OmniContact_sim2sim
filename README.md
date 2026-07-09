@@ -102,17 +102,23 @@ Supported single-skill tasks:
 `--task pushbox` is treated as an alias for `pushbox-in`.
 
 ### 🔗 Skill Chaining
+```bash
+python deploy_omnicontact/run_skill_omnicontact.py \
+  --reference-source CFgen \
+  --task-chaining relocate-kick \
+  --init-pos -2.0 0.0 \
+  --goal-pos 0.0 1.0
+```
 
 ```bash
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy policy.onnx \
   --task-chaining carry-push \
   --init-pos 1.0 0.0 \
-  --goal-pos 2.5 0.5
+  --goal-pos 2.0 0.5
 ```
 
-Common chain presets include `push-carry`, `carry-push`, `push-relocate`, `carry-carry`, `carry-carry-carry`, and `carryheart`.
+Common chain presets include `push-carry`, `carry-push`, `push-relocate`, `relocate-kick`, `carry-carry`, `carry-carry-carry`, and `carryheart`.
 
 <details>
 <summary>Chain XML mapping</summary>
@@ -122,6 +128,7 @@ Common chain presets include `push-carry`, `carry-push`, `push-relocate`, `carry
 | `push-carry` | `g1_description/omnicontact_pushcarry_box.xml` |
 | `carry-push` | `g1_description/omnicontact_pushcarry_box.xml` |
 | `push-relocate` | `g1_description/omnicontact_pushrelocate_ball.xml` |
+| `relocate-kick` | `g1_description/omnicontact_relocate_kick_ball.xml` |
 | `carry-carry` | `g1_description/omnicontact_stack_2box.xml` |
 | `carry-carry-carry` | `g1_description/omnicontact_stack_3box.xml` |
 | `carryheart` | `g1_description/omnicontact_heart_10box.xml` |
@@ -230,6 +237,7 @@ python deploy_omnicontact/deploy_omnicontact.py \
 | `kickball`, `kickbox` | `g1_description/omnicontact_kick_ball.xml` |
 | `push-carry`, `carry-push` | `g1_description/omnicontact_pushcarry_box.xml` |
 | `push-relocate` | `g1_description/omnicontact_pushrelocate_ball.xml` |
+| `relocate-kick` | `g1_description/omnicontact_relocate_kick_ball.xml` |
 | `carry-carry` | `g1_description/omnicontact_stack_2box.xml` |
 | `carry-carry-carry` | `g1_description/omnicontact_stack_3box.xml` |
 | `carryheart` | `g1_description/omnicontact_heart_10box.xml` |

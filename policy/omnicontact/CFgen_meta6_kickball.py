@@ -44,7 +44,7 @@ class CfGenKickBall(CfGenBase):
             "phase11_waypoint_clearance": 0.45,
             "kick_lateral_offset": 0.12,
             "phase13_lift_frames": 2,
-            "phase14_swing_frames": 10,
+            "phase14_swing_frames": 20,
             "phase15_recover_frames": 10,
             "phase13_hip_swing_deg": 30.0,
             "phase13_knee_swing_deg": 0.0,
@@ -139,6 +139,7 @@ class CfGenKickBall(CfGenBase):
             object_quat=obj_quat0,
             obstacle_half_dims=box_half_dims,
         )
+        b.pad(11, contact=self._contact0, count=2*self.pad)
 
         # -------------------------
         # Phase12: walk forward to the final kick stance 0.2 m behind the ball.
@@ -149,7 +150,7 @@ class CfGenKickBall(CfGenBase):
             pelvis_start=b.last("base_p"),
             pelvis_target=phase12_stance_pos,
             yaw=target_yaw_quat,
-            step_linear=self.step_linear*1.5,
+            step_linear=self.step_linear*2.0,
             object_pos=b.last("obj_p"),
             object_quat=b.last("obj_q"),
         )

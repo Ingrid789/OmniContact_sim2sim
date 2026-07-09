@@ -17,6 +17,8 @@ class OmniContactObjectsMixin:
             return "carry_box"
         if self.policy.task == "push-relocate" and active_name not in {"push_box", "ball"}:
             return "push_box"
+        if self.policy.task == "relocate-kick" and active_name != "ball":
+            return "ball"
         return active_name
 
     def _get_active_object_body_id(self) -> int:
@@ -91,7 +93,7 @@ class OmniContactObjectsMixin:
         if self.policy.task == "loco":
             goal[2] = float(DEFAULT_PELVIS_Z)
             return goal
-        if self.policy.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "kickball", "push-carry", "carry-push", "push-relocate"}:
+        if self.policy.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "kickball", "push-carry", "carry-push", "push-relocate", "relocate-kick"}:
             goal[2] = float(self.policy.box_dims[2])
         return goal
 
@@ -124,7 +126,7 @@ class OmniContactObjectsMixin:
         if self.policy.task == "loco":
             init_pos[2] = float(DEFAULT_PELVIS_Z)
             return init_pos
-        if self.policy.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "relocateball", "kickball", "push-carry", "carry-push", "push-relocate"}:
+        if self.policy.task in {"pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "relocateball", "kickball", "push-carry", "carry-push", "push-relocate", "relocate-kick"}:
             init_pos[2] = float(self.policy.box_dims[2])
         return init_pos
 

@@ -4,6 +4,7 @@ from common.utils import align_quat_hemisphere, quat_apply, quat_conjugate, quat
 from policy.omnicontact.CFgen_meta2_carrybox import CfGenCarryBox
 from policy.omnicontact.CFgen_meta3_pushbox_innerside import CfGenPushBoxInnerSide
 from policy.omnicontact.CFgen_meta5_relocateball import CfGenRelocateBall
+from policy.omnicontact.CFgen_meta6_kickball import CfGenKickBall
 
 
 class CfGenPushCarryBox:
@@ -289,6 +290,91 @@ class CfGenPushRelocateBall:
             push_box_dims=push_box_dims,
             ball_dims=ball_dims,
             push_goal=push_goal,
+        )
+        traj_data, target_yaw = plan["generator"].generate(
+            pelvis_pos=pelvis_pos,
+            pelvis_quat=pelvis_quat,
+            obj_pos=plan["obj_pos"],
+            obj_quat=plan["obj_quat"],
+            box_half_dims=plan["box_dims"],
+            target_obj_pos=plan["goal"],
+        )
+        return plan, traj_data, float(target_yaw)
+
+
+class CfGenRelocateKickBall:
+    """Meta-skill chain: relocate the ball to a kick point, then kick it to the goal."""
+
+    RELOCATE_STAGE = "relocate_ball"
+    KICK_STAGE = "kick_ball"
+
+    def __init__(self, pad: int = 30, step_size_linear: float = 0.016, step_size_angular: float = 0.03):
+        self.relocate = CfGenRelocateBall(
+            pad=pad,
+            step_size_linear=step_size_linear,
+            step_size_angular=step_size_angular,
+        )
+        self.kick = CfGenKickBall(
+            pad=pad,
+            step_size_linear=step_size_linear,
+            step_size_angular=step_size_angular,
+        )
+
+    def stage_plan(
+        self,
+        stage: str,
+        *,
+        ball_pos: np.ndarray,
+        ball_quat: np.ndarray,
+        ball_dims: np.ndarray,
+        relocate_goal: np.ndarray,
+        kick_goal: np.ndarray,
+    ) -> dict:
+        ball_dims = np.asarray(ball_dims, dtype=np.float32).reshape(3)
+
+        if stage != self.KICK_STAGE:
+            goal = np.asarray(relocate_goal, dtype=np.float32).reshape(3).copy()
+            return {
+                "stage": self.RELOCATE_STAGE,
+                "generator": self.relocate,
+                "object_name": "ball",
+                "box_dims": ball_dims.copy(),
+                "obj_pos": np.asarray(ball_pos, dtype=np.float32).reshape(3).copy(),
+                "obj_quat": np.asarray(ball_quat, dtype=np.float32).reshape(4).copy(),
+                "goal": goal,
+            }
+
+        goal = np.asarray(kick_goal, dtype=np.float32).reshape(3).copy()
+        goal[2] = float(ball_dims[2])
+        return {
+            "stage": self.KICK_STAGE,
+            "generator": self.kick,
+            "object_name": "ball",
+            "box_dims": ball_dims.copy(),
+            "obj_pos": np.asarray(ball_pos, dtype=np.float32).reshape(3).copy(),
+            "obj_quat": np.asarray(ball_quat, dtype=np.float32).reshape(4).copy(),
+            "goal": goal,
+        }
+
+    def generate_stage(
+        self,
+        stage: str,
+        *,
+        pelvis_pos: np.ndarray,
+        pelvis_quat: np.ndarray,
+        ball_pos: np.ndarray,
+        ball_quat: np.ndarray,
+        ball_dims: np.ndarray,
+        relocate_goal: np.ndarray,
+        kick_goal: np.ndarray,
+    ) -> tuple[dict, dict, float]:
+        plan = self.stage_plan(
+            stage,
+            ball_pos=ball_pos,
+            ball_quat=ball_quat,
+            ball_dims=ball_dims,
+            relocate_goal=relocate_goal,
+            kick_goal=kick_goal,
         )
         traj_data, target_yaw = plan["generator"].generate(
             pelvis_pos=pelvis_pos,

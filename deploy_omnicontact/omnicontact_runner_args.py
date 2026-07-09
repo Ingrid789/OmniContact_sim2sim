@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
         "--task",
         type=str,
         default="carrybox",
-        choices=["loco", "carrybox", "carryheart", "pushbox", "pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "push-carry", "carry-push", "push-relocate", "carry*2", "carry*3", "carry-carry", "carry-carry-carry", "stackbox", "relocateball", "kickball", "kickbox"],
+        choices=["loco", "carrybox", "carryheart", "pushbox", "pushbox-two", "pushbox-in", "slidebox", "slidebox-left", "slidebox-right", "push-carry", "carry-push", "push-relocate", "relocate-kick", "carry*2", "carry*3", "carry-carry", "carry-carry-carry", "stackbox", "relocateball", "kickball", "kickbox"],
         help="Task preset used by CFgen. loco walks from init pelvis position to goal pelvis position. slidebox and kickball are upright behind-object walk-and-drive plans with hands kept free. stackbox carries three boxes to a fixed stack target.",
     )
     parser.add_argument(
@@ -33,7 +33,7 @@ def parse_args() -> argparse.Namespace:
         type=str,
         nargs="+",
         default=(),
-        choices=["push", "carry", "carryheart", "push-carry", "carry-push", "push-relocate", "carry*2", "carry*3", "carry-carry", "carry-carry-carry"],
+        choices=["push", "carry", "carryheart", "push-carry", "carry-push", "push-relocate", "relocate-kick", "carry*2", "carry*3", "carry-carry", "carry-carry-carry"],
         metavar="SKILL",
         help="Meta-skill chain, for example: --task-chaining push-carry, --task-chaining carry-push, or the split form --task-chaining push carry.",
     )

@@ -69,3 +69,20 @@ def push_relocate_plan(policy: Any, fk_info: dict):
     policy.traj_generator = policy.push_relocate_cfgen
     _set_active_object_profile(policy, plan["object_name"], plan["box_dims"])
     return plan, traj_data, target_yaw
+
+
+def relocate_kick_plan(policy: Any, fk_info: dict):
+    plan, traj_data, target_yaw = policy.relocate_kick_cfgen.generate_stage(
+        policy.relocate_kick_stage,
+        pelvis_pos=fk_info["pelvis"]["pos"],
+        pelvis_quat=fk_info["pelvis"]["quat"],
+        ball_pos=policy.state_cmd.ball_pos,
+        ball_quat=policy.state_cmd.ball_quat,
+        ball_dims=policy.ball_dims,
+        relocate_goal=policy.relocate_kick_goal_pos,
+        kick_goal=getattr(policy, "relocate_kick_final_goal_pos", policy.goal_pos),
+    )
+    policy.relocate_kick_stage = plan["stage"]
+    policy.traj_generator = policy.relocate_kick_cfgen
+    _set_active_object_profile(policy, plan["object_name"], plan["box_dims"])
+    return plan, traj_data, target_yaw

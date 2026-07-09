@@ -14,11 +14,13 @@ from policy.omnicontact.CFgen_metaskill_chaining import (
     CfGenCarryPushBox,
     CfGenPushCarryBox,
     CfGenPushRelocateBall,
+    CfGenRelocateKickBall,
 )
 from policy.omnicontact.CFgen_stage_plans import (
     carry_carry_carry_plan,
     carrybox_pushbox_plan,
     push_relocate_plan,
+    relocate_kick_plan,
 )
 
 
@@ -37,6 +39,7 @@ STAGED_CFGEN_TASKS = {
     "push-carry": carrybox_pushbox_plan,
     "carry-push": carrybox_pushbox_plan,
     "push-relocate": push_relocate_plan,
+    "relocate-kick": relocate_kick_plan,
     "stackbox": carry_carry_carry_plan,
     "carry-carry": carry_carry_carry_plan,
     "carry-carry-carry": carry_carry_carry_plan,
@@ -52,6 +55,10 @@ def init_cfgen_state(policy: Any, pad: int = 30) -> None:
     policy.carry_push_cfgen = CfGenCarryPushBox(pad=pad)
     policy.push_relocate_stage = "idle"
     policy.push_relocate_cfgen = CfGenPushRelocateBall(pad=pad)
+    policy.relocate_kick_stage = "idle"
+    policy.relocate_kick_cfgen = CfGenRelocateKickBall(pad=pad)
+    policy.relocate_kick_goal_pos = np.zeros(3, dtype=np.float32)
+    policy.relocate_kick_final_goal_pos = np.zeros(3, dtype=np.float32)
     policy.carry3_cfgen = CfGenCarryCarryCarryBox(pad=pad)
     policy.stackbox_stage_idx = 0
     policy.stackbox_stage_count = 3
@@ -109,6 +116,15 @@ def _first_stage_plan(policy: Any) -> dict | None:
             ball_dims=policy.ball_dims,
             push_goal=policy.goal_pos,
         )
+    if policy.task == "relocate-kick":
+        return policy.relocate_kick_cfgen.stage_plan(
+            policy.relocate_kick_cfgen.RELOCATE_STAGE,
+            ball_pos=policy.state_cmd.ball_pos,
+            ball_quat=policy.state_cmd.ball_quat,
+            ball_dims=policy.ball_dims,
+            relocate_goal=policy.relocate_kick_goal_pos,
+            kick_goal=getattr(policy, "relocate_kick_final_goal_pos", policy.goal_pos),
+        )
     return None
 
 
@@ -117,6 +133,8 @@ def _first_stage_object_pos(policy: Any) -> np.ndarray | None:
         return np.asarray(policy.state_cmd.push_box_pos, dtype=np.float32).reshape(3)
     if policy.task == "carry-push":
         return np.asarray(policy.state_cmd.carry_box_pos, dtype=np.float32).reshape(3)
+    if policy.task == "relocate-kick":
+        return np.asarray(policy.state_cmd.ball_pos, dtype=np.float32).reshape(3)
     return None
 
 
@@ -183,6 +201,13 @@ def initialize_cfgen_reference(policy: Any, fk_info: dict) -> None:
         else:
             policy.push_relocate_stage = policy.push_relocate_cfgen.PUSH_STAGE
             set_active_object_profile(policy, "push_box", policy.push_box_dims)
+    elif policy.task == "relocate-kick":
+        if _should_skip_first_stage(policy):
+            policy.relocate_kick_stage = policy.relocate_kick_cfgen.KICK_STAGE
+            print("[CFgen] skip relocate-kick first stage; ball already near kick point.")
+        else:
+            policy.relocate_kick_stage = policy.relocate_kick_cfgen.RELOCATE_STAGE
+        set_active_object_profile(policy, "ball", policy.ball_dims)
     elif policy.task in {"stackbox", "carry-carry", "carry-carry-carry"}:
         policy.stackbox_stage_idx = 0
         policy.stackbox_stage_count = 2 if policy.task == "carry-carry" else 3

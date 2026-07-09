@@ -57,6 +57,7 @@ TASK_XML_PATHS = {
     "push-carry": "g1_description/omnicontact_pushcarry_box.xml",
     "carry-push": "g1_description/omnicontact_pushcarry_box.xml",
     "push-relocate": "g1_description/omnicontact_pushrelocate_ball.xml",
+    "relocate-kick": "g1_description/omnicontact_relocate_kick_ball.xml",
     "carry-carry": "g1_description/omnicontact_stack_2box.xml",
     "carry-carry-carry": "g1_description/omnicontact_stack_3box.xml",
     "carryheart": "g1_description/omnicontact_heart_10box.xml",
@@ -74,6 +75,7 @@ INIT_Z_AUTO_TASKS = {
     "push-carry",
     "carry-push",
     "push-relocate",
+    "relocate-kick",
 }
 
 GOAL_Z_AUTO_TASKS = {
@@ -87,6 +89,7 @@ GOAL_Z_AUTO_TASKS = {
     "push-carry",
     "carry-push",
     "push-relocate",
+    "relocate-kick",
 }
 
 
@@ -172,7 +175,7 @@ def select_active_box_dims(task: str, dims_by_profile: dict[str, np.ndarray]) ->
         return "push_box", np.asarray(dims_by_profile["push_box_dims"], dtype=np.float32).copy()
     if task == "carry-push":
         return "carry_box", np.asarray(dims_by_profile["carry_box_dims"], dtype=np.float32).copy()
-    if task in {"relocateball", "kickball", "kickbox"}:
+    if task in {"relocateball", "kickball", "kickbox", "relocate-kick"}:
         return "ball", np.asarray(dims_by_profile["ball_dims"], dtype=np.float32).copy()
     return "box", np.asarray(dims_by_profile["box_dims"], dtype=np.float32).copy()
 
@@ -351,6 +354,7 @@ if __name__ == "__main__":
         "r_ankle": mocap_id("ref_r_ankle_frame"),
         "plane_1": mocap_id("plane_1_holder"),
         "plane_2": mocap_id("plane_2_holder"),
+        "relocate_goal": mocap_id("relocate_goal_holder"),
     }
     ref_contact_geom_ids = [
         geom_id("ref_l_ankle_mesh"),
@@ -389,6 +393,11 @@ if __name__ == "__main__":
     contactflow_policy.stack_box_dims = np.asarray(dims_by_profile["stack_box_dims"], dtype=np.float32).copy()
     contactflow_policy.box_dims = box_half_dims.copy()
     contactflow_policy.goal_pos_override = goal_pos.copy()
+    if args.task == "relocate-kick":
+        contactflow_policy.relocate_kick_final_goal_pos = goal_pos.copy()
+        contactflow_policy.relocate_kick_goal_pos = goal_pos.copy()
+        contactflow_policy.relocate_kick_goal_pos[0] -= 1.0
+        contactflow_policy.relocate_kick_goal_pos[2] = 0.4
     contactflow_policy.bbox_scale = contactflow_policy.box_dims * 2.0
     contactflow_policy.bbox_offsets_scaled = contactflow_policy.bbox_offsets * contactflow_policy.bbox_scale.reshape(1, 3)
     contactflow_policy.replan_active = False
@@ -618,7 +627,17 @@ if __name__ == "__main__":
         set_object_pose(init_pos)
         table_z_offset = float(contactflow_policy.box_dims[2]) + 0.005
         table_offset = np.array([0.0, 0.0, table_z_offset], dtype=np.float32)
-        set_table_positions(init_pos - table_offset, goal_pos - table_offset)
+        if args.task == "relocate-kick":
+            set_table_positions(init_pos - table_offset, goal_pos.copy())
+            if ref_mocap_ids["relocate_goal"] >= 0:
+                relocate_goal = contactflow_policy.relocate_kick_goal_pos
+                d.mocap_pos[ref_mocap_ids["relocate_goal"]] = np.array(
+                    [relocate_goal[0], relocate_goal[1], -0.01],
+                    dtype=np.float32,
+                )
+            d.mocap_quat[ref_mocap_ids["plane_2"]] = identity_quat
+        else:
+            set_table_positions(init_pos - table_offset, goal_pos - table_offset)
         mujoco.mj_step(m, d)
 
     def request_skill(command, reset_fn=None) -> bool:
