@@ -58,7 +58,8 @@ This repository provides two MuJoCo execution paths:
 - `deploy_omnicontact/run_skill_omnicontact.py`: direct scripted execution for CFgen or NPZmotion tracking.
 - `deploy_omnicontact/deploy_omnicontact.py`: interactive hot-switch execution with an Xbox joystick, designed to mirror the state switching pattern used by sim2real deployment.
 
-The **CF-Track training code in Isaac Lab** is available in [OmniContact](https://github.com/Ingrid789/OmniContact).
+
+> 📌 The **CF-Track training code in Isaac Lab** is available now in **[OmniContact](https://github.com/Ingrid789/OmniContact)**.
 
 ## ⚙️ Setup
 
