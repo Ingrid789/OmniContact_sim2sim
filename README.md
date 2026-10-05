@@ -32,6 +32,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Ingrid789/OmniContact"><img src="https://img.shields.io/badge/Code in IsaacLab-CFTrack-blue" alt="CF-Track IsaacLab Code"></a>
   <a href="https://omnicontact.github.io/"><img src="https://img.shields.io/badge/Project-Page-2ea44f" alt="Project Page"></a>
   <a href="https://arxiv.org/abs/2606.26201"><img src="https://img.shields.io/badge/arXiv-2606.26201-b31b1b" alt="arXiv"></a>
   <a href="https://omnicontact.github.io/policy-viewer.html?v=policy-hide-push-ghostbox-20260604a"><img src="https://img.shields.io/badge/Live%20Demo-MuJoCo%20Policy%20Viewer-orange" alt="Live Demo"></a>
