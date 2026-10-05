@@ -2,12 +2,14 @@
   <span style="color:#ef5b5b">OmniContact</span>: Chaining Meta-Skills via Contact Flow for Generalizable Humanoid Loco-Manipulation
 </h1>
 
+<p align="center"><strong>🎉 Accepted to CORL 2026 🎉</strong></p>
+
 <p align="center">
   <a href="https://ingrid789.github.io/IngridYu/">Runyi Yu</a><sup>1,2,*</sup>,
   <a href="https://github.com/XiaoyiLin-code">Xiaoyi Lin</a><sup>1,3,*</sup>,
   <a href="https://astrorix.github.io/">Ji Ma</a><sup>1</sup>,
   <a href="https://wyhuai.github.io/info/">Yinhuai Wang</a><sup>2,✉</sup>,
-  <a href="https://chubbyemo.github.io/">Koukou Luo</a><sup>2</sup>,
+  <a href="https://chubbyemo.github.io/">Koukou Luo</a><sup>1,2</sup>,
   <a href="https://scholar.google.com/citations?user=3dhUvVYAAAAJ&hl=zh-CN&oi=ao">Jiahao Ji</a><sup>1</sup>,
   <a href="https://why618188.github.io/">Huayi Wang</a><sup>1,4</sup>,
   <a href="https://wenjiawang0312.github.io/">Wenjia Wang</a><sup>1,4</sup>,
@@ -55,6 +57,8 @@ This repository provides two MuJoCo execution paths:
 
 - `deploy_omnicontact/run_skill_omnicontact.py`: direct scripted execution for CFgen or NPZmotion tracking.
 - `deploy_omnicontact/deploy_omnicontact.py`: interactive hot-switch execution with an Xbox joystick, designed to mirror the state switching pattern used by sim2real deployment.
+
+The **CF-Track training code in Isaac Lab** is available in [OmniContact](https://github.com/Ingrid789/OmniContact).
 
 ## ⚙️ Setup
 
