@@ -276,6 +276,10 @@ The interactive deploy visualizes:
 
 If the ghost robot is not visible in the MuJoCo viewer, enable `group 1` rendering, since the ghost geoms are assigned to visual group 1.
 
+## 📌 CF-Track Training
+
+The **CF-Track training code in Isaac Lab** is available in **[OmniContact](https://github.com/Ingrid789/OmniContact)**.
+
 ## 📚 Citation
 
 ```bibtex
