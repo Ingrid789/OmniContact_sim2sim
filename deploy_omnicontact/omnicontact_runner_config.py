@@ -36,10 +36,6 @@ NPZ_DIR_XML_PATHS = (
     ("data/kickball", "g1_description/omnicontact_kick_ball_npz.xml"),
 )
 
-NPZ_DIR_POLICY_PATHS = (
-    ("data/kickball", "kick_50k.onnx"),
-)
-
 
 class OmniContactConfigMixin:
     def _load_config(self):
@@ -60,9 +56,6 @@ class OmniContactConfigMixin:
 
     def _xml_path_from_npz_dir(self) -> str:
         return self._path_from_npz_dir(NPZ_DIR_XML_PATHS)
-
-    def _policy_path_from_npz_dir(self) -> str:
-        return self._path_from_npz_dir(NPZ_DIR_POLICY_PATHS)
 
     def _path_from_npz_dir(self, mappings) -> str:
         if str(getattr(self.args, "reference_source", "")).strip() != "NPZmotion":
