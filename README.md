@@ -78,7 +78,7 @@ Run commands from the repository root:
 cd /path/to/OmniContact_sim2sim
 ```
 
-The direct runner resolves relative model paths under `policy/omnicontact/model/`, so `--policy policy.onnx` maps to `policy/omnicontact/model/policy.onnx`.
+The direct runner resolves model filenames under `policy/omnicontact/model/`. For example, `--policy omnicontact_transformer.onnx` loads `policy/omnicontact/model/omnicontact_transformer.onnx`.
 
 ## ▶️ Direct Runner
 
@@ -89,13 +89,13 @@ Use `run_skill_omnicontact.py` for scripted runs that start OmniContact immediat
 ```bash
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy policy.onnx \
+  --policy omnicontact_transformer.onnx \
   --task carrybox \
   --init-pos 1.0 0.0 \
   --goal-pos 2.5 0.5
 ```
 
-Supported single-skill tasks:
+#### Supported Tasks
 
 | Family | Tasks |
 | --- | --- |
@@ -107,7 +107,29 @@ Supported single-skill tasks:
 
 `--task pushbox` is treated as an alias for `pushbox-in`.
 
+#### Policy Selection and Success Rates
+
+Select a model with `--policy`. Both ONNX files are available in `policy/omnicontact/model/`:
+
+- **Transformer** (default): `--policy omnicontact_transformer.onnx`
+- **MLP**: `--policy omnicontact_mlp.onnx`
+
+The table below compares their success rates on five CFgen tasks. The best result for each task is shown in **bold**.
+
+| Task | Threshold | Transformer | MLP |
+| :--- | :---: | ---: | ---: |
+| `carrybox` | 0.2 | **96.0%** | 79.5% |
+| `pushbox-in` | 0.5 | **96.5%** | 94.5% |
+| `pushbox-two` | 0.5 | **91.0%** | 45.5% |
+| `slidebox` | 0.2 | **100.0%** | 99.5% |
+| `relocateball` | 0.2 | **94.0%** | 93.0% |
+| **Average** | — | **95.5%** | **82.4%** |
+| Training Time | — | 4 GPU × 79.7 h | 4 GPU × 42.3 h |
+
+*Average is the unweighted mean across all five tasks.*
+
 ### 🔗 Skill Chaining
+
 ```bash
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
@@ -148,7 +170,7 @@ Extra object initialization can be provided for chained tasks:
 ```bash
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source CFgen \
-  --policy policy.onnx \
+  --policy omnicontact_transformer.onnx \
   --task-chaining push-carry \
   --init-pos 1.0 0.0 \
   --init-pos-extra 2.2 -0.8 \
@@ -162,7 +184,7 @@ Use `--reference-source NPZmotion` to track a full `.npz` motion from `data/`.
 ```bash
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source NPZmotion \
-  --policy policy.onnx \
+  --policy omnicontact_transformer.onnx \
   --npz-dir data/relocateball/relocateball_motion_3_with_contact.npz \
   --start-frame 0
 ```
@@ -189,7 +211,7 @@ The runner infers XML assets from common data folders. Pass `--xml-path` to over
 python deploy_omnicontact/run_skill_omnicontact.py \
   --reference-source NPZmotion \
   --xml-path g1_description/omnicontact_relocate_ball.xml \
-  --policy policy.onnx \
+  --policy omnicontact_transformer.onnx \
   --npz-dir data/relocateball/relocateball_motion_3_with_contact.npz
 ```
 

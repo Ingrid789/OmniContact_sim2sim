@@ -28,7 +28,7 @@ class CfGenCarryBox(CfGenBase):
         self.cfg = {
             "phase11_pregrasp_standoff_dist": 0.4,
             "phase21_carry_object_z": 0.9,
-            "phase22_object_goal_standoff": 0.4,
+            "phase22_object_goal_standoff": 0.3,
             "courch_vel": 150.0,
             "ik_joint_indices": np.array(
                 [
