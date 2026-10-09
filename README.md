@@ -124,7 +124,7 @@ The table below compares their success rates on five CFgen tasks. The best resul
 | `slidebox` | 0.2 | **100.0%** | 99.5% |
 | `relocateball` | 0.2 | **98.0%** | 93.0% |
 | **Average** | — | **98.0%** | **82.4%** |
-| Training Time | — | 4 GPU × 79.7 h | 4 GPU × 42.3 h |
+| Training Time | — | 4 GPU × 86.8 h | 4 GPU × 48.9 h |
 
 *Average is the unweighted mean across all five tasks.*
 
