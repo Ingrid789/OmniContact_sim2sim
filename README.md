@@ -118,12 +118,12 @@ The table below compares their success rates on five CFgen tasks. The best resul
 
 | Task | Threshold | Transformer | MLP |
 | :--- | :---: | ---: | ---: |
-| `carrybox` | 0.2 | **96.0%** | 79.5% |
+| `carrybox` | 0.2 | **99.0%** | 79.5% |
 | `pushbox-in` | 0.5 | **96.5%** | 94.5% |
-| `pushbox-two` | 0.5 | **91.0%** | 45.5% |
+| `pushbox-two` | 0.5 | **96.5%** | 45.5% |
 | `slidebox` | 0.2 | **100.0%** | 99.5% |
-| `relocateball` | 0.2 | **94.0%** | 93.0% |
-| **Average** | — | **95.5%** | **82.4%** |
+| `relocateball` | 0.2 | **98.0%** | 93.0% |
+| **Average** | — | **98.0%** | **82.4%** |
 | Training Time | — | 4 GPU × 79.7 h | 4 GPU × 42.3 h |
 
 *Average is the unweighted mean across all five tasks.*
